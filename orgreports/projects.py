@@ -42,7 +42,7 @@ def main(files):
             if node.level == 2:
                 tags = set(node.get_all_tags())
                 todo = node.todo if hasattr(node, 'todo') else None
-                if 'project' in tags and 'inactive' not in tags and \
+                if 'PROJECT' in tags and 'inactive' not in tags and \
                    (todo is None or todo not in ['DONE', 'CANCELLED']):
                     parent = node.parent.heading.strip()
                     if parent in projects:
