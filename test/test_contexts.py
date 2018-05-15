@@ -4,7 +4,8 @@ import tempfile
 import unittest
 
 
-from orgreports.contexts import find_contexts
+from click.testing import CliRunner
+from orgreports.contexts import main
 
 
 class Fixture(unittest.TestCase):
@@ -37,6 +38,16 @@ class Fixture(unittest.TestCase):
       :END:
 """
 
+    __OUTPUT = """
+2 tasks in -1 ctxs:
+
+| ctx                              | # Tasks |        |
+|----------------------------------+---------+--------|
+| @online                          |       2 | 100.0% |
+|----------------------------------+---------+--------|
+"""
+
+
     def setUp(self):
         self.d = tempfile.mkdtemp();
         with open(os.path.join(self.d, 'a.org'), 'w') as fh:
@@ -45,9 +56,14 @@ class Fixture(unittest.TestCase):
     def tearDown(self):
         shutil.rmtree(self.d)
 
-    def test_find_contexts(self):
-        D = find_contexts([os.path.join(self.d, 'a.org')], 'ctx', ['TODO', 'IN-PROGRESS'])
-        assert len(D.keys()) == 4
+    def test_sub_command(self):
+
+        f = os.path.join(self.d, 'a.org')
+        runner = CliRunner()
+        result = runner.invoke(main, ['-p', 'ctx', f])
+        assert result.exit_code == 0
+        assert result.output == self.__OUTPUT
+        print(result)
 
 
 if __name__ == '__main__':

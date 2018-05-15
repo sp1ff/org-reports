@@ -7,6 +7,7 @@ import unicodedata
 
 
 from . import help
+from properties import find_by_property
 
 
 from operator import itemgetter
@@ -16,81 +17,11 @@ from jinja2 import Template
 from PyOrgMode.PyOrgMode import OrgDataStructure
 
 
-def find_contexts(files, property, state):
-    """Categorize all tasks in `files'.
-
-    :param files iterable(str): list of files to process
-    :param property str: Org property by which to categorize
-    :param state iterable(str): todo states to be categorized
-    :return dict: a dict mapping `property' values to lists of tasks (on
-                  which more below)
-
-    key 0 will return a list of the tasks that do not define the Org property
-    `property' and 1 the list of tasks thta define `property' multiple times.
-    """
-
-    def _is_drawer(x):
-        return isinstance(x, PyOrgMode.PyOrgMode.OrgElement) and \
-            x.TYPE == 'DRAWER_ELEMENT'
-
-    contexts = {0: [], 1: []}  # 0 => no context, 1 => multiple contexts
-
-    for f in files:
-
-        # TODO(sp1ff): Look for a property_all field
-
-        base = OrgDataStructure()
-        for s in state:
-            base.add_todo_state(s)
-
-        with codecs.open(f, encoding='utf-8') as fh:
-            base.load_from_string(fh.read())
-
-        todos = base.extract_todo_list()
-        for todo in todos:
-
-            # No node, no node content => no context
-            if todo.node is None or todo.node.content is None:
-                contexts[0].append((unicode(todo.heading), unicode(f)))
-                continue
-
-            # todo.node.content is a list. The elements may be
-            # strings, or Element instances. Fortunately, Element
-            # and its subclasses have a member named TYPE.
-            drawers = filter(_is_drawer, todo.node.content)
-            if len(drawers) == 0:
-                # no drawers => no contexts
-                contexts[0].append((unicode(todo.heading), unicode(f)))
-                continue
-
-            matches = set()
-            for drawer in drawers:
-                for x in drawer.content:
-                    if isinstance(x, PyOrgMode.PyOrgMode.OrgDrawer.Property):
-                        if x.name == property:
-                            matches.add(x)
-
-            # `matches' is the list of properties matching `property'.
-            # no matches => no context
-            if len(matches) == 0:
-                contexts[0].append((unicode(todo.heading), unicode(f)))
-                continue
-            elif len(matches) > 1:
-                # multiple contexts (?)
-                contexts[1].append((unicode(todo.heading), unicode(f)))
-                continue
-            else:
-                ctx = matches.pop().value
-                contexts[ctx] = contexts[ctx] + 1 if ctx in contexts else 1
-
-    return contexts
-
-
 CTX_HEADER = 'org-reports contexts'
 
 CTX_SYNOPSIS = 'Report tasks by property.'
 
-CTX_DISCUSS = """org-reports contexsts will print a report of your todos
+CTX_DISCUSS = """org-reports contexts will print a report of your todos
 broken out by a given property ([2mContext[0m, by default).
 
 This command will partition the tasks found in the [2mFILES[0m arguments
@@ -110,7 +41,11 @@ property more than once will also be listed (if any).
 @click.argument('files', nargs=-1, type=click.Path(exists=True), required=True)
 @help(header=CTX_HEADER, synopsis=CTX_SYNOPSIS, discussion=CTX_DISCUSS)
 def main(property, state, sort, files):
-    """Print a report of the number of open tasks by context"""
+    """Print a report of the number of open tasks by context.
+
+    This is really just a special case of the `properties' sub-command, but
+    I've kept it separate because I like the extended report format used here.
+    """
 
     from click.termui import get_terminal_size
 
@@ -158,7 +93,7 @@ def main(property, state, sort, files):
                        contexts=ctxes, max_file_len=max_file_len,
                        uw=_uw, len=len, headline=headline))
 
-    contexts = find_contexts(files, property, state)
+    contexts = find_by_property(files, property, state)
 
     no_ctxes = []
     mt_ctxes = []
@@ -191,8 +126,8 @@ def main(property, state, sort, files):
         else:
             return '...' + s[-cc+3:]
 
-    total_tasks = sum(contexts.values())
-    contexts = [(x, contexts[x], 100*float(contexts[x])/float(total_tasks)) for x in contexts.keys()]
+    total_tasks = sum([len(x) for x in contexts.values()])
+    contexts = [(x, len(contexts[x]), 100*float(len(contexts[x]))/float(total_tasks)) for x in contexts.keys()]
 
     if sort == 'alpha':
         contexts = sorted(contexts, key=itemgetter(0))

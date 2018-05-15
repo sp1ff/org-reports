@@ -3,3 +3,8 @@
 *.egg-info
 PyOrgMode
 files.txt
+build
+dist
+pip-selfcheck.json
+requirements.txt
+venv

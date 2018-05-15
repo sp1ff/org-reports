@@ -15,7 +15,7 @@ with open(path.join(here, 'description.rst'), encoding='utf-8') as f:
 
 setup(
     name             = 'org-reports',
-    version          = '0.1.1',
+    version          = '0.2.1',
     description      = 'Reporting on your org-mode life',
     long_description = long_description,
     url              = 'https://github.com/pypa/org-reports',

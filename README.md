@@ -52,10 +52,32 @@ org-reports projects projects.org
 
 will produce a little report of such items.
 
+### Properties
+
+This is a generalization of the =contexts= sub-command. You can
+specify multiple properties & get a report of all the tasks broken
+out by the product of the vector of values for each property.
+
+For instance, suppose you use two properties Foo & Bar. Over all
+your tasks, the values of Foo range over [A, B, C] and those of
+Bar [X, Y, Z].
+
+``` shell
+org-reports properties -p Foo -p Bar projects.org
+
+| Foo, Bar            | # Tasks|
+|---------------------+--------|
+| A,X                 | 12     |
+| A,Y                 | 1      |
+| B,X                 | 100    |
+...
+|---------------------+--------|
+```
+
 ## Installing & Running
 
 This is also extremely
-prliminary. [org-reports](https://www.github.com/sp1ff/org-reports)
+preliminary. [org-reports](https://www.github.com/sp1ff/org-reports)
 uses [PyOrgMode](https://github.com/bjonnh/PyOrgMode/), but requries
 a [PR](https://github.com/bjonnh/PyOrgMode/pull/41) that `bjohnh` has
 not yet merged. So... to set this up:
@@ -88,6 +110,7 @@ git clone git@github.com:sp1ff/PyOrgMode.git
 cd PyOrgMode
 git checkout sp1ff-tag-inheritance
 sudo -H python setup.py install --record files.txt
+cd ..
 git clone git@github.com:sp1ff/org-reports.git
 cd org-reports
 sudo -H python setup.py install --record files.txt
@@ -97,3 +120,9 @@ sudo -H python setup.py install --record files.txt
 
 I'm not sure what, if anything, I'll do with it, but back when I
 was using Emacs Planner, this sort of tool found some use.
+
+Other features that might be useful:
+
+  - produce a list of all Todos moved to DONE this day, week, month, &c
+  - identify languishing tasks
+    - report on items by time since they entered their current state

@@ -25,9 +25,11 @@ and I'm not sure how to make this more general.
 
 
 @click.command()
+@click.option('--brief', '-b', is_flag=True, default=False,
+              help='Just summarize the results.')
 @click.argument('files', nargs=-1, type=click.Path(exists=True), required=True)
 @help(header=HEADER, synopsis=SYNOPSIS, discussion=DISCUSSION)
-def main(files):
+def main(brief, files):
     """Print a report of the number of open projects."""
 
     # Look for nodes at level 2, with the tag 'project', missing
@@ -58,7 +60,11 @@ def main(files):
         base.load_from_file(f)
         extract_from_level(base.root.content)
 
-    for h in projects:
-        print '%d %s:' % (len(projects[h]), h)
-        for p in projects[h]:
-            print '    %s' % p.heading
+    if brief:
+        for h in projects:
+            print '%d %s' % (len(projects[h]), h)
+    else:
+        for h in projects:
+            print '%d %s:' % (len(projects[h]), h)
+            for p in projects[h]:
+                print '    %s' % p.heading
