@@ -9,17 +9,12 @@ def custom_test_suite():
     test_suite = test_loader.discover('test', pattern='test_*.py')
     return test_suite
 
-here = path.abspath(path.dirname(__file__))
-with open(path.join(here, 'description.rst'), encoding='utf-8') as f:
-    long_description = f.read()
-
 setup(
     name             = 'org-reports',
     version          = '0.2.1',
     description      = 'Reporting on your org-mode life',
-    long_description = long_description,
     url              = 'https://github.com/pypa/org-reports',
-    author           = 'Michael',
+    author           = 'sp1ff',
     author_email     = 'sp1ff@pobox.com',
     license          = 'GPL',
     # Cf. https://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -59,5 +54,6 @@ setup(
             'org-reports=orgreports.main:cli',
         ],
     },
+
     test_suite = 'setup.custom_test_suite'
 )

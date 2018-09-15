@@ -2,14 +2,14 @@
 
 ## Introduction
 
-[org-reports](https://www.github.com/sp1ff/org-reports) is a *very*
+[org-reports](https://www.github.com/sp1ff/org-reports) is a very
 preliminary attempt at a tool for generation various sorts of reports
 from [Org](https://www.org-mode.org) files.
 
 ## Current Sub-commands
 
 [org-reports](https://www.github.com/sp1ff/org-reports) can produce
-two reports: contexts & projects.
+a few reports: contexts, projects & properties.
 
 ### Contexts
 
@@ -76,44 +76,51 @@ org-reports properties -p Foo -p Bar projects.org
 
 ## Installing & Running
 
-This is also extremely
+This is also
 preliminary. [org-reports](https://www.github.com/sp1ff/org-reports)
 uses [PyOrgMode](https://github.com/bjonnh/PyOrgMode/), but requries
-a [PR](https://github.com/bjonnh/PyOrgMode/pull/41) that `bjohnh` has
-not yet merged. So... to set this up:
+a [PR](https://github.com/bjonnh/PyOrgMode/pull/41) that `bjonnh` has
+merged, but has not made it into the latest release on PyPi. So... to
+setup a development environment:
 
 ``` shell
 cd /tmp
-git clone git@github.com:sp1ff/PyOrgMode.git
+git clone git@github.com:bjonnh/PyOrgMode.git
 git clone git@github.com:sp1ff/org-reports.git
 cd org-reports
 virtualenv venv
 . venv/bin/activate
 cd ../PyOrgMode
-git checkout sp1ff-tag-inheritance
 python setup.py install
 cd ../org-reports
 python setup.py develop
 ```
 
-Lame, I know, but until my PR is merged, I'm not sure what else
-to do. Maybe I'll look into producing a `.pex` file.
-
 In the meantime, I've wrapped much of this up in a script `autogen.sh`
 (yes, I'd rather be working in C++ using `autotools`).
 
-You _can_ install it normally, as well:
+You _can_ install it directly, assuming you have all the dependencies
+available in your Python environment:
 
 ``` shell
 cd /tmp
 git clone git@github.com:sp1ff/PyOrgMode.git
 cd PyOrgMode
-git checkout sp1ff-tag-inheritance
 sudo -H python setup.py install --record files.txt
 cd ..
 git clone git@github.com:sp1ff/org-reports.git
 cd org-reports
 sudo -H python setup.py install --record files.txt
+```
+
+I'm now experimenting with `pex`:
+
+``` shell
+cd /tmp
+git clone git@github.com:sp1ff/org-reports.git
+cd org-reports
+./autogen.sh
+pex PyOrgMode -vvv --disable-cache -e orgreports.main:cli -o org-reports.pex ./
 ```
 
 ## Future Development
@@ -123,6 +130,7 @@ was using Emacs Planner, this sort of tool found some use.
 
 Other features that might be useful:
 
-  - produce a list of all Todos moved to DONE this day, week, month, &c
+  - produce a list of all tasks moved to DONE this day, week, month, &c
   - identify languishing tasks
     - report on items by time since they entered their current state
+  - migrate to Python3 (or another language entirely)
